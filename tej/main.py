@@ -70,6 +70,14 @@ Examples:
         version="Tej AI v1.0.0"
     )
     parser.add_argument(
+        "--gui", action="store_true",
+        help="Launch GUI desktop application"
+    )
+    parser.add_argument(
+        "--install-desktop", action="store_true",
+        help="Install as desktop application (Linux)"
+    )
+    parser.add_argument(
         "--no-color", action="store_true",
         help="Disable colored output"
     )
@@ -79,6 +87,18 @@ Examples:
     )
 
     args = parser.parse_args()
+
+    # GUI mode
+    if args.gui:
+        from tej.gui import launch_gui
+        launch_gui()
+        return
+
+    # Install desktop application (Linux)
+    if args.install_desktop:
+        from tej.install_desktop import install_desktop
+        install_desktop()
+        return
 
     # Handle CLI-only commands without starting the shell
     if args.list_tools or args.list_categories or args.search or \

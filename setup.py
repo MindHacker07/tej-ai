@@ -18,6 +18,7 @@ setup(
     entry_points={
         "console_scripts": [
             "tej=tej.main:main",
+            "tej-gui=tej.gui:launch_gui",
         ],
     },
     classifiers=[

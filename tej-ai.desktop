@@ -1,0 +1,13 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Tej AI
+GenericName=Security Tool Orchestrator
+Comment=AI-Powered Security Tool Orchestrator for Kali Linux
+Exec=tej-gui
+Icon=tej-ai
+Terminal=false
+Categories=System;Security;Utility;
+Keywords=security;pentesting;hacking;kali;ai;nmap;tools;
+StartupWMClass=tej-ai
+StartupNotify=true

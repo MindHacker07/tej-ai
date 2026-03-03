@@ -21,5 +21,8 @@ classifiers = [
 [project.scripts]
 tej = "tej.main:main"
 
+[project.gui-scripts]
+tej-gui = "tej.gui:launch_gui"
+
 [tool.setuptools.packages.find]
 include = ["tej*"]
