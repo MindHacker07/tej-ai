@@ -1,0 +1,14 @@
+# Tej AI Requirements
+# Core dependencies (all cross-platform)
+# No external dependencies required for base functionality!
+# Tej AI is built with Python standard library only.
+
+# Optional: Enhanced readline for Windows
+# pip install pyreadline3     # Better tab completion on Windows
+
+# Optional: Rich terminal UI (if you want enhanced formatting)
+# pip install rich            # Beautiful terminal formatting
+
+# Optional: For AI-powered analysis with LLMs
+# pip install openai          # OpenAI API integration
+# pip install anthropic       # Anthropic Claude integration
