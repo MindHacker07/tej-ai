@@ -1,6 +1,7 @@
 """
-Tej AI - Main GUI Application
+TejStrike AI - Main GUI Application
 Desktop application window with sidebar, chat interface, and tool panels.
+Supports multi-model LLM integration and MCP server connections.
 """
 
 import os
@@ -21,18 +22,21 @@ from tej.core.engine import TejBrain, TaskCategory
 from tej.core.platform_manager import PlatformManager
 from tej.core.executor import ToolExecutor, ExecutionConfig
 from tej.core.session import SessionManager
+from tej.core.agent import TejStrikeAgent
+from tej.core.llm_provider import LLMConfig, LLMProvider, AVAILABLE_MODELS, detect_installed_providers
+from tej.core.mcp_client import MCPManager
 from tej.tools.registry import (
     get_all_tools, get_tools_by_category, search_tools,
     get_all_categories, get_tool_count, TOOL_REGISTRY, ToolInfo
 )
 from tej.tools.parsers import OutputParserFactory
-from tej.utils.config import ConfigManager
+from tej.utils.config import ConfigManager, LLMSettings
 
 
 class TejApp:
-    """Main Tej AI Desktop Application."""
+    """Main TejStrike AI Desktop Application."""
 
-    VERSION = "1.0.0"
+    VERSION = "2.0.0"
 
     def __init__(self):
         # ── Initialize Backend ───────────────────────────────────────
@@ -43,6 +47,23 @@ class TejApp:
         self.config = self.config_mgr.load()
         self.session_mgr = SessionManager(self.brain, self.config.output_dir)
 
+        # Initialize AI agent with LLM and MCP support
+        self.mcp_manager = MCPManager()
+        llm_config = None
+        if self.config.llm and self.config.llm.provider:
+            try:
+                llm_config = LLMConfig(
+                    provider=LLMProvider(self.config.llm.provider),
+                    model=self.config.llm.model,
+                    api_key=self.config.llm.api_key,
+                    api_base_url=self.config.llm.api_base_url,
+                    temperature=self.config.llm.temperature,
+                    max_tokens=self.config.llm.max_tokens,
+                )
+            except (ValueError, KeyError):
+                pass
+        self.agent = TejStrikeAgent(self.brain, llm_config, self.mcp_manager)
+
         # State
         self.current_target = self.config.default_target or ""
         self.is_executing = False
@@ -50,7 +71,7 @@ class TejApp:
 
         # ── Build Window ─────────────────────────────────────────────
         self.root = tk.Tk()
-        self.root.title("Tej AI — Security Tool Orchestrator")
+        self.root.title("TejStrike AI \u2014 Security Tool Orchestrator")
         self.root.configure(bg=Theme.BG_DARK)
 
         # Window size & position
@@ -72,15 +93,24 @@ class TejApp:
 
         # ── Auto-start session ──────────────────────────────────────
         self.session_mgr.new_session()
+        # Determine LLM status
+        llm_status = ""
+        if self.agent.has_llm:
+            llm_status = f"\nLLM: {self.config.llm.provider}/{self.config.llm.model} ✓"
+        else:
+            llm_status = "\nLLM: Not configured (using built-in engine)"
+
         self._system_message(
-            f"Welcome to Tej AI v{self.VERSION}\n"
+            f"Welcome to TejStrike AI v{self.VERSION}\n"
             f"Platform: {self.platform_mgr.platform.value.title()} | "
-            f"Tools registered: {get_tool_count()}\n\n"
+            f"Tools registered: {get_tool_count()}"
+            f"{llm_status}\n\n"
             "Type a natural language command below — e.g.:\n"
             '  • "scan 192.168.1.1"\n'
             '  • "find subdomains of example.com"\n'
             '  • "crack hashes with john"\n'
-            '  • "search sql injection tools"'
+            '  • "search sql injection tools"\n\n'
+            "Configure LLM: Settings → AI Model (Ctrl+,)"
         )
 
     # ── Window Helpers ───────────────────────────────────────────────
@@ -263,7 +293,7 @@ class TejApp:
                             bg=Theme.BG_MEDIUM, fg=Theme.TEXT_PRIMARY,
                             activebackground=Theme.ACCENT_DIM,
                             activeforeground="#fff")
-        help_menu.add_command(label="About Tej AI",
+        help_menu.add_command(label="About TejStrike AI",
                               command=self._show_about)
         help_menu.add_command(label="Keyboard Shortcuts",
                               command=self._show_shortcuts)
@@ -457,51 +487,34 @@ class TejApp:
             self._ai_message(f"Unknown command: {cmd}\nType /help for available commands.")
 
     def _process_natural_language(self, text: str):
-        """Process natural language through TejBrain."""
+        """Process natural language through TejStrike AI agent."""
         self._set_status("Analyzing...", Theme.ACCENT)
         self._start_progress()
 
-        # Parse intent
-        intent = self.brain.parse_intent(text)
+        # Use the agent (LLM if configured, built-in engine otherwise)
+        response = self.agent.process(text)
 
-        # If we have a default target and none was extracted
-        if not intent.target and self.current_target:
-            intent.target = self.current_target
+        # Update target if extracted
+        if self.current_target:
+            self.agent.set_target(self.current_target)
 
-        # Build response
-        response_parts = []
+        if response.llm_used:
+            # LLM-powered response
+            model_tag = f" [{response.model}]" if response.model else ""
+            self._ai_message(f"🤖{model_tag}\n{response.text}")
+        else:
+            # Built-in engine response
+            self._ai_message(response.text)
 
-        # Category & confidence
-        cat_name = intent.category.value.replace("_", " ").title()
-        conf_pct = int(intent.confidence * 100)
-        response_parts.append(
-            f"📋 Category: {cat_name} (confidence: {conf_pct}%)\n"
-            f"🎯 Action: {intent.action}"
-        )
-
-        if intent.target:
-            response_parts.append(f"🔎 Target: {intent.target}")
-            if intent.target != self.current_target:
-                self.current_target = intent.target
-                self.target_label.config(text=f"Target: {intent.target}")
-                self.session_mgr.add_target(intent.target)
-
-        # Build commands
-        commands = self.brain.build_command(intent)
-
+        # Extract and show commands
+        commands = response.commands
         if commands:
-            response_parts.append("\n⚡ Suggested Commands:")
+            cmd_text = "\n⚡ Suggested Commands:"
             for i, cmd in enumerate(commands, 1):
-                response_parts.append(
-                    f"  [{i}] {cmd['description']}\n"
-                    f"      $ {cmd['command']}"
-                )
+                cmd_text += f"\n  [{i}] {cmd.get('description', '')}\n      $ {cmd['command']}"
+            cmd_text += "\n\n💡 Click a command above or type its number to execute."
+            self._ai_message(cmd_text)
 
-            response_parts.append(
-                "\n💡 Click a command above or type its number to execute."
-            )
-
-        self._ai_message("\n".join(response_parts))
         self._stop_progress()
         self._set_status("Ready", Theme.TEXT_SECONDARY)
 
@@ -632,7 +645,7 @@ class TejApp:
         self.is_executing = False
         self._stop_progress()
         self._set_status("Process terminated", Theme.WARNING)
-        self.terminal_panel.append_output("\n[Tej] Process killed by user\n", "error")
+        self.terminal_panel.append_output("\n[TejStrike] Process killed by user\n", "error")
 
     # ── Sidebar Handlers ─────────────────────────────────────────────
 
@@ -691,7 +704,7 @@ class TejApp:
 
     def _show_help(self):
         help_text = (
-            "💡 TEJ AI HELP\n"
+            "💡 TEJSTRIKE AI HELP\n"
             "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n"
             "🗣️ Natural Language:\n"
             '  Just type what you want, e.g.: "scan 192.168.1.1"\n\n'
@@ -703,6 +716,7 @@ class TejApp:
             "  /tools         — List categories\n"
             "  /session       — Session info\n"
             "  /platform      — System info\n"
+            "  /model         — Show current LLM model\n"
             "  /clear         — Clear chat\n\n"
             "⌨️ Keyboard Shortcuts:\n"
             "  Ctrl+N — New session\n"

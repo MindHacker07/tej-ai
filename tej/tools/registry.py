@@ -1,5 +1,6 @@
+
 """
-Tej AI - Tool Registry
+TejStrike AI - Tool Registry
 Central registry of all supported Kali Linux tools organized by category.
 """
 

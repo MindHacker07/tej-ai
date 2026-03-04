@@ -1,7 +1,7 @@
-# Tej AI Requirements
+# TejStrike AI Requirements
 # Core dependencies (all cross-platform)
 # No external dependencies required for base functionality!
-# Tej AI is built with Python standard library only.
+# TejStrike AI is built with Python standard library only.
 
 # Optional: Enhanced readline for Windows
 # pip install pyreadline3     # Better tab completion on Windows
@@ -9,6 +9,14 @@
 # Optional: Rich terminal UI (if you want enhanced formatting)
 # pip install rich            # Beautiful terminal formatting
 
-# Optional: For AI-powered analysis with LLMs
-# pip install openai          # OpenAI API integration
-# pip install anthropic       # Anthropic Claude integration
+# ─── LLM Providers (install the one you want to use) ───
+# pip install anthropic       # Anthropic Claude (Opus, Sonnet, Haiku)
+# pip install openai          # OpenAI GPT (GPT-4o, GPT-4, o1)
+# pip install groq            # Groq fast inference (Mixtral, LLaMA)
+# pip install ollama          # Ollama local models (optional client)
+
+# Install all LLM providers at once:
+# pip install anthropic openai groq
+
+# ─── MCP Server Support (built-in, no extra deps) ───
+# MCP uses JSON-RPC over stdio/SSE - no additional packages needed

@@ -1,5 +1,5 @@
 """
-Tej AI - Chat Panel
+TejStrike AI - Chat Panel
 Chat-style message interface with user/AI message bubbles,
 auto-scroll, and input area.
 """
@@ -238,7 +238,7 @@ class ChatPanel(ttk.Frame):
             self.chat_display.insert(tk.END, "\n", "user_text")
 
         elif role == "ai":
-            self.chat_display.insert(tk.END, f"  TEJ AI • {timestamp}\n", "ai_header")
+            self.chat_display.insert(tk.END, f"  TEJSTRIKE AI • {timestamp}\n", "ai_header")
             # Render AI text with code detection
             self._render_text(text, "ai_text")
             self.chat_display.insert(tk.END, "\n", "ai_text")
@@ -263,7 +263,7 @@ class ChatPanel(ttk.Frame):
     # ── Placeholder ──────────────────────────────────────────────────
 
     def _show_placeholder(self):
-        self.input_box.insert("1.0", "Ask Tej anything... (e.g., 'scan 192.168.1.1')")
+        self.input_box.insert("1.0", "Ask TejStrike anything... (e.g., 'scan 192.168.1.1')")
         self.input_box.config(fg=Theme.TEXT_TERTIARY)
         self._placeholder_visible = True
 

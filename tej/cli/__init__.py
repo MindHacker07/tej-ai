@@ -1,1 +1,1 @@
-"""Tej AI CLI"""
+"""TejStrike AI CLI"""

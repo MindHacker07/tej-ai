@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Tej AI - Generate Application Icon
+Tej Strike AI - Generate Application Icon
 Creates a PNG icon for the desktop application using tkinter canvas.
 Run this once to generate the icon file.
 """
@@ -10,7 +10,7 @@ import sys
 
 
 def generate_icon():
-    """Generate a simple Tej AI icon as PNG using tkinter."""
+    """Generate a simple TejStrike AI icon as PNG using tkinter."""
     try:
         import tkinter as tk
     except ImportError:

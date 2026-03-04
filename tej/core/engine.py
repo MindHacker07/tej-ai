@@ -1,7 +1,8 @@
 """
-Tej AI - Core AI Engine
+TejStrike AI - Core AI Engine
 Handles natural language understanding, tool selection, command generation,
 and intelligent output parsing for security operations.
+Works alongside LLM providers for enhanced natural language interpretation.
 """
 
 import json
@@ -367,7 +368,7 @@ class TejBrain:
     }
 
     def __init__(self):
-        """Initialize the Tej AI Brain."""
+        """Initialize the TejStrike AI Brain."""
         self.context: Dict[str, Any] = {}
         self.history: List[Dict[str, Any]] = []
         self.session_targets: List[str] = []

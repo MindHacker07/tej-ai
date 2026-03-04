@@ -1,5 +1,5 @@
 #!/bin/bash
-# Tej AI - Linux/Kali Quick Launcher
+# TejStrike AI - Linux/Kali Quick Launcher
 # chmod +x tej.sh && ./tej.sh
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"

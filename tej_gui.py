@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Tej AI - GUI Quick Launcher
-Double-click this file to launch the Tej AI desktop application.
+TejStrike AI - GUI Quick Launcher
+Double-click this file to launch the TejStrike AI desktop application.
 """
 
 import sys

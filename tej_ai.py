@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Tej AI Quick Launcher
-Run this file to start Tej AI directly.
+TejStrike AI Quick Launcher
+Run this file to start TejStrike AI directly.
 """
 
 import sys

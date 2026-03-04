@@ -1,5 +1,5 @@
 """
-Tej AI - GUI Theme & Styling
+TejStrike AI - GUI Theme & Styling
 Dark theme colors, fonts, and styling constants for the desktop application.
 """
 

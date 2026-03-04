@@ -1,1 +1,1 @@
-"""Tej AI Core Engine"""
+"""TejStrike AI Core Engine"""

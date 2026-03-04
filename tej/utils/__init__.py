@@ -1,1 +1,1 @@
-"""Tej AI Utilities"""
+"""TejStrike AI Utilities"""

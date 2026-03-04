@@ -1,5 +1,5 @@
 """
-Tej AI - Output Parsers
+TejStrike AI - Output Parsers
 Intelligent parsers for security tool output.
 """
 

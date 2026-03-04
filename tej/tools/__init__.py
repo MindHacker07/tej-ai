@@ -1,1 +1,1 @@
-"""Tej AI Tool Integrations"""
+"""TejStrike AI Tool Integrations"""

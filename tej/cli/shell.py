@@ -1,6 +1,7 @@
 """
-Tej AI - Interactive Shell
-Main interactive command-line interface for Tej AI.
+TejStrike AI - Interactive Shell
+Main interactive command-line interface for TejStrike AI.
+Supports multi-model LLM for natural language interpretation.
 """
 
 import os
@@ -14,6 +15,9 @@ from tej.core.engine import TejBrain, TaskCategory
 from tej.core.platform_manager import PlatformManager
 from tej.core.executor import ToolExecutor, ExecutionConfig
 from tej.core.session import SessionManager
+from tej.core.agent import TejStrikeAgent
+from tej.core.llm_provider import LLMConfig, LLMProvider
+from tej.core.mcp_client import MCPManager
 from tej.tools.registry import (
     get_all_tools, get_tools_by_category, get_tools_by_tag,
     search_tools, get_all_categories, get_tool_count, TOOL_REGISTRY
@@ -29,6 +33,7 @@ class TejShell:
     """
     Interactive AI-powered security shell.
     Processes natural language input and orchestrates Kali Linux tools.
+    Uses LLM (Claude, GPT, etc.) when configured for enhanced understanding.
     """
 
     def __init__(self):
@@ -41,6 +46,23 @@ class TejShell:
         self.session_mgr = SessionManager(
             self.brain, self.config.output_dir
         )
+
+        # Initialize AI agent with LLM support
+        self.mcp_manager = MCPManager()
+        llm_config = None
+        if self.config.llm and self.config.llm.provider:
+            try:
+                llm_config = LLMConfig(
+                    provider=LLMProvider(self.config.llm.provider),
+                    model=self.config.llm.model,
+                    api_key=self.config.llm.api_key,
+                    api_base_url=self.config.llm.api_base_url,
+                    temperature=self.config.llm.temperature,
+                    max_tokens=self.config.llm.max_tokens,
+                )
+            except (ValueError, KeyError):
+                pass
+        self.agent = TejStrikeAgent(self.brain, llm_config, self.mcp_manager)
 
         # State
         self.running = True
@@ -60,7 +82,7 @@ class TejShell:
         """Configure readline for command history and tab completion."""
         try:
             history_file = os.path.join(
-                self.config.output_dir, ".tej_history"
+                self.config.output_dir, ".tejstrike_history"
             )
             os.makedirs(os.path.dirname(history_file), exist_ok=True)
             try:
@@ -89,7 +111,7 @@ class TejShell:
             pass  # readline not available (Windows without pyreadline)
 
     def start(self):
-        """Start the interactive Tej AI shell."""
+        """Start the interactive TejStrike AI shell."""
         clear_screen()
         print(BANNER)
         self._print_status()
@@ -107,7 +129,7 @@ class TejShell:
                 self._process_input(user_input)
 
             except KeyboardInterrupt:
-                print(f"\n{Colors.warning('Use \"exit\" to quit Tej AI.')}")
+                print(f"\n{Colors.warning('Use \"exit\" to quit TejStrike AI.')}")
             except EOFError:
                 self._do_exit()
             except Exception as e:
@@ -120,7 +142,7 @@ class TejShell:
 
     def _build_prompt(self) -> str:
         """Build the command prompt string."""
-        parts = [Colors.BRIGHT_RED + "tej" + Colors.RESET]
+        parts = [Colors.BRIGHT_RED + "tejstrike" + Colors.RESET]
         
         # Show target if set
         if self.default_target:
@@ -144,6 +166,14 @@ class TejShell:
         print(f"  {Colors.dim('Admin/Root:')} {admin_str}")
         print(f"  {Colors.dim('Tools DB:')} {Colors.info(str(get_tool_count()))} tools registered")
         print(f"  {Colors.dim('Output:')} {self.executor.get_output_dir()}")
+
+        if self.agent.has_llm:
+            prov = self.config.llm.provider
+            model = self.config.llm.model
+            print(f"  {Colors.dim('LLM:')} {Colors.success(f'{prov}/{model}')}")
+        else:
+            print(f"  {Colors.dim('LLM:')} {Colors.dim('Not configured (built-in engine)')}")
+
         print(f"\n  {Colors.dim('Type')} {Colors.info('help')} {Colors.dim('for commands or just describe what you want to do.')}")
 
     def _process_input(self, user_input: str):
@@ -170,6 +200,8 @@ class TejShell:
             "run": lambda: self._cmd_run(args),
             "last": lambda: self._cmd_last(),
             "platform": lambda: self._cmd_platform(),
+            "model": lambda: self._cmd_model(args),
+            "status": lambda: self._cmd_agent_status(),
         }
 
         if cmd in command_map:
@@ -461,28 +493,100 @@ class TejShell:
         for key, val in info.items():
             print(f"  {Colors.dim(key + ':'):<20} {val}")
 
+    def _cmd_model(self, args: list):
+        """Show or set LLM model."""
+        if not args:
+            status = self.agent.get_status()
+            if status["llm_configured"]:
+                print(f"  Provider: {Colors.info(status['llm_provider'])}")
+                print(f"  Model: {Colors.info(status['llm_model'])}")
+            else:
+                print(Colors.dim("No LLM configured. Using built-in engine."))
+                print(f"  {Colors.info('model set <provider> <model> [api_key]')} - Configure LLM")
+                print(f"  Providers: anthropic, openai, groq, ollama")
+            return
+
+        subcmd = args[0].lower()
+        if subcmd == "set" and len(args) >= 3:
+            provider_name = args[1].lower()
+            model_name = args[2]
+            api_key = args[3] if len(args) > 3 else ""
+
+            try:
+                provider = LLMProvider(provider_name)
+                config = LLMConfig(
+                    provider=provider,
+                    model=model_name,
+                    api_key=api_key,
+                )
+                self.agent.configure_llm(config)
+                # Save to config
+                from tej.utils.config import LLMSettings
+                self.config.llm = LLMSettings(
+                    provider=provider_name,
+                    model=model_name,
+                    api_key=api_key,
+                )
+                self.config_mgr.save()
+                print(Colors.success(f"LLM configured: {provider_name}/{model_name}"))
+            except ValueError:
+                print(Colors.error(f"Unknown provider: {provider_name}"))
+                print(f"  Available: anthropic, openai, groq, ollama")
+        elif subcmd == "test":
+            if self.agent.test_llm_connection():
+                print(Colors.success("LLM connection OK"))
+            else:
+                print(Colors.error("LLM connection failed"))
+        elif subcmd == "clear":
+            self.agent.configure_llm(LLMConfig())
+            self.config.llm = __import__('tej.utils.config', fromlist=['LLMSettings']).LLMSettings()
+            self.config_mgr.save()
+            print(Colors.dim("LLM cleared. Using built-in engine."))
+        else:
+            print(Colors.warning("Usage: model [set <provider> <model> [api_key] | test | clear]"))
+
+    def _cmd_agent_status(self):
+        """Show agent status."""
+        status = self.agent.get_status()
+        print(f"\n{Colors.header('TejStrike AI Agent Status')}")
+        for key, val in status.items():
+            print(f"  {Colors.dim(key + ':'):<25} {val}")
+
     # ---- Natural Language Processing ----
 
     def _process_natural_language(self, user_input: str):
-        """Process natural language input using the AI brain."""
+        """Process natural language input using the AI agent."""
         
-        # Override target if default is set
-        intent = self.brain.parse_intent(user_input)
+        # Use agent for processing (LLM if configured, built-in otherwise)
+        response = self.agent.process(user_input)
+
+        if response.llm_used:
+            # LLM-powered response
+            model_tag = f" [{response.model}]" if response.model else ""
+            print(f"\n{Colors.info(f'🤖 AI Agent{model_tag}:')}")
+            print(f"  {response.text}")
+        else:
+            # Built-in engine response - show detailed breakdown
+            intent = self.brain.parse_intent(user_input)
         
-        if not intent.target and self.default_target:
-            intent.target = self.default_target
+            if not intent.target and self.default_target:
+                intent.target = self.default_target
 
-        # Show understanding
-        print(f"\n{Colors.dim('Understanding:')}")
-        print(f"  {Colors.dim('Category:')} {Colors.info(intent.category.value)}")
-        print(f"  {Colors.dim('Action:')} {intent.action}")
-        if intent.target:
-            print(f"  {Colors.dim('Target:')} {Colors.accent(intent.target)}")
-        print(f"  {Colors.dim('Confidence:')} {intent.confidence:.0%}")
-        print(f"  {Colors.dim('Tools:')} {', '.join(intent.tools_suggested[:5])}")
+            print(f"\n{Colors.dim('Understanding:')}")
+            print(f"  {Colors.dim('Category:')} {Colors.info(intent.category.value)}")
+            print(f"  {Colors.dim('Action:')} {intent.action}")
+            if intent.target:
+                print(f"  {Colors.dim('Target:')} {Colors.accent(intent.target)}")
+            print(f"  {Colors.dim('Confidence:')} {intent.confidence:.0%}")
+            print(f"  {Colors.dim('Tools:')} {', '.join(intent.tools_suggested[:5])}")
 
-        # Build commands
-        commands = self.brain.build_command(intent)
+        # Get commands from response or build them
+        commands = response.commands
+        if not commands and not response.llm_used:
+            intent = self.brain.parse_intent(user_input)
+            if not intent.target and self.default_target:
+                intent.target = self.default_target
+            commands = self.brain.build_command(intent)
         
         if not commands:
             print(Colors.warning("\nCouldn't determine the right command. Try being more specific."))
@@ -631,7 +735,7 @@ class TejShell:
                 )
 
     def _do_exit(self):
-        """Exit Tej AI."""
+        """Exit TejStrike AI."""
         # Save session
         if self.session_mgr.session:
             path = self.session_mgr.save_session()
@@ -643,7 +747,7 @@ class TejShell:
 
         # Save readline history
         try:
-            history_file = os.path.join(self.config.output_dir, ".tej_history")
+            history_file = os.path.join(self.config.output_dir, ".tejstrike_history")
             readline.write_history_file(history_file)
         except Exception:
             pass
@@ -651,7 +755,7 @@ class TejShell:
         # Kill any running processes
         self.executor.kill_all()
 
-        print(f"\n{Colors.accent('Tej AI')} - {Colors.dim('Stay sharp. Stay ethical.')}")
+        print(f"\n{Colors.accent('TejStrike AI')} - {Colors.dim('Stay sharp. Stay ethical.')}")
         self.running = False
 
     def _cleanup(self):

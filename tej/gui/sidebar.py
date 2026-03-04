@@ -1,5 +1,5 @@
 """
-Tej AI - Sidebar Panel
+TejStrike AI - Sidebar Panel
 Left sidebar with tool categories, tool list, search, and session info.
 """
 
@@ -52,7 +52,7 @@ class Sidebar(tk.Frame):
 
         # TEJ text logo
         tk.Label(
-            logo_frame, text="TEJ",
+            logo_frame, text="TEJSTRIKE",
             bg=Theme.BG_MEDIUM, fg=Theme.ACCENT,
             font=Theme.get_font("title", bold=True),
         ).pack(side=tk.LEFT)
@@ -67,7 +67,7 @@ class Sidebar(tk.Frame):
         ver_frame = tk.Frame(logo_frame, bg=Theme.ACCENT_DIM, padx=6, pady=1)
         ver_frame.pack(side=tk.RIGHT)
         tk.Label(
-            ver_frame, text="v1.0",
+            ver_frame, text="v2.0",
             bg=Theme.ACCENT_DIM, fg="#ffffff",
             font=Theme.get_font("small"),
         ).pack()

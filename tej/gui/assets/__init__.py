@@ -1,1 +1,1 @@
-# Tej AI - GUI Assets
+# TejStrike AI - GUI Assets

@@ -1,13 +1,13 @@
 [Desktop Entry]
-Version=1.0
+Version=2.0
 Type=Application
-Name=Tej AI
+Name=TejStrike AI
 GenericName=Security Tool Orchestrator
-Comment=AI-Powered Security Tool Orchestrator for Kali Linux
-Exec=tej-gui
-Icon=tej-ai
+Comment=AI-Powered Security Tool Orchestrator with Multi-Model LLM Support
+Exec=tejstrike-gui
+Icon=tejstrike-ai
 Terminal=false
 Categories=System;Security;Utility;
-Keywords=security;pentesting;hacking;kali;ai;nmap;tools;
-StartupWMClass=tej-ai
+Keywords=security;pentesting;hacking;kali;ai;nmap;tools;llm;claude;gpt;
+StartupWMClass=tejstrike-ai
 StartupNotify=true

@@ -3,13 +3,13 @@ requires = ["setuptools>=45", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "tej"
-version = "1.0.0"
-description = "Tej AI - AI-Powered Security Tool Orchestrator for Kali Linux & Windows"
+name = "tejstrike-ai"
+version = "2.0.0"
+description = "TejStrike AI - AI-Powered Security Tool Orchestrator with Multi-Model LLM Support"
 readme = "README.md"
 license = {text = "MIT"}
 requires-python = ">=3.8"
-keywords = ["security", "pentesting", "kali-linux", "ai", "hacking"]
+keywords = ["security", "pentesting", "kali-linux", "ai", "hacking", "llm", "claude", "gpt"]
 classifiers = [
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: MIT License",
@@ -18,10 +18,18 @@ classifiers = [
     "Environment :: Console",
 ]
 
+[project.optional-dependencies]
+anthropic = ["anthropic>=0.30.0"]
+openai = ["openai>=1.0.0"]
+groq = ["groq>=0.5.0"]
+all-llm = ["anthropic>=0.30.0", "openai>=1.0.0", "groq>=0.5.0"]
+
 [project.scripts]
+tejstrike = "tej.main:main"
 tej = "tej.main:main"
 
 [project.gui-scripts]
+tejstrike-gui = "tej.gui:launch_gui"
 tej-gui = "tej.gui:launch_gui"
 
 [tool.setuptools.packages.find]

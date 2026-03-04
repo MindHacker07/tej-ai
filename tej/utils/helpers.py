@@ -1,5 +1,5 @@
 """
-Tej AI - Utility Helpers
+TejStrike AI - Utility Helpers
 Common utilities for formatting, colors, and display.
 """
 
@@ -100,19 +100,19 @@ class Colors:
 
 
 BANNER = f"""{Colors.BRIGHT_CYAN}
-╔══════════════════════════════════════════════════════════════════╗
-║                                                                  ║
-║   {Colors.BRIGHT_RED}████████╗{Colors.BRIGHT_WHITE}███████╗{Colors.BRIGHT_GREEN}     ██╗{Colors.BRIGHT_CYAN}                                   ║
-║   {Colors.BRIGHT_RED}╚══██╔══╝{Colors.BRIGHT_WHITE}██╔════╝{Colors.BRIGHT_GREEN}     ██║{Colors.BRIGHT_CYAN}                                   ║
-║   {Colors.BRIGHT_RED}   ██║   {Colors.BRIGHT_WHITE}█████╗  {Colors.BRIGHT_GREEN}     ██║{Colors.BRIGHT_CYAN}                                   ║
-║   {Colors.BRIGHT_RED}   ██║   {Colors.BRIGHT_WHITE}██╔══╝  {Colors.BRIGHT_GREEN}██   ██║{Colors.BRIGHT_CYAN}                                   ║
-║   {Colors.BRIGHT_RED}   ██║   {Colors.BRIGHT_WHITE}███████╗{Colors.BRIGHT_GREEN}╚█████╔╝{Colors.BRIGHT_CYAN}                                   ║
-║   {Colors.BRIGHT_RED}   ╚═╝   {Colors.BRIGHT_WHITE}╚══════╝{Colors.BRIGHT_GREEN} ╚════╝ {Colors.BRIGHT_CYAN}                                   ║
-║                                                                  ║
-║   {Colors.BRIGHT_WHITE}AI-Powered Security Tool Orchestrator{Colors.BRIGHT_CYAN}                       ║
-║   {Colors.DIM}Kali Linux & Windows | v1.0.0{Colors.BRIGHT_CYAN}                              ║
-║                                                                  ║
-╚══════════════════════════════════════════════════════════════════╝
+╔══════════════════════════════════════════════════════════════════════╗
+║                                                                      ║
+║  {Colors.BRIGHT_RED}████████╗{Colors.BRIGHT_WHITE}███████╗{Colors.BRIGHT_GREEN} ██╗{Colors.BRIGHT_YELLOW}███████╗{Colors.BRIGHT_MAGENTA}████████╗{Colors.BRIGHT_CYAN}██████╗ ██╗██╗  ██╗███████╗  ║
+║  {Colors.BRIGHT_RED}╚══██╔══╝{Colors.BRIGHT_WHITE}██╔════╝{Colors.BRIGHT_GREEN} ██║{Colors.BRIGHT_YELLOW}██╔════╝{Colors.BRIGHT_MAGENTA}╚══██╔══╝{Colors.BRIGHT_CYAN}██╔══██╗██║██║ ██╔╝██╔════╝  ║
+║  {Colors.BRIGHT_RED}   ██║   {Colors.BRIGHT_WHITE}█████╗  {Colors.BRIGHT_GREEN} ██║{Colors.BRIGHT_YELLOW}███████╗{Colors.BRIGHT_MAGENTA}   ██║   {Colors.BRIGHT_CYAN}██████╔╝██║█████╔╝ █████╗    ║
+║  {Colors.BRIGHT_RED}   ██║   {Colors.BRIGHT_WHITE}██╔══╝  {Colors.BRIGHT_GREEN} ██║{Colors.BRIGHT_YELLOW}╚════██║{Colors.BRIGHT_MAGENTA}   ██║   {Colors.BRIGHT_CYAN}██╔══██╗██║██╔═██╗ ██╔══╝    ║
+║  {Colors.BRIGHT_RED}   ██║   {Colors.BRIGHT_WHITE}███████╗{Colors.BRIGHT_GREEN} ██║{Colors.BRIGHT_YELLOW}███████║{Colors.BRIGHT_MAGENTA}   ██║   {Colors.BRIGHT_CYAN}██║  ██║██║██║  ██╗███████╗  ║
+║  {Colors.BRIGHT_RED}   ╚═╝   {Colors.BRIGHT_WHITE}╚══════╝{Colors.BRIGHT_GREEN} ╚═╝{Colors.BRIGHT_YELLOW}╚══════╝{Colors.BRIGHT_MAGENTA}   ╚═╝   {Colors.BRIGHT_CYAN}╚═╝  ╚═╝╚═╝╚═╝  ╚═╝╚══════╝  ║
+║                                                                      ║
+║   {Colors.BRIGHT_WHITE}AI-Powered Security Tool Orchestrator{Colors.BRIGHT_CYAN}                           ║
+║   {Colors.DIM}Kali Linux & Windows | v2.0.0 | Multi-Model LLM{Colors.BRIGHT_CYAN}                ║
+║                                                                      ║
+╚══════════════════════════════════════════════════════════════════════╝
 {Colors.RESET}"""
 
 
@@ -145,9 +145,10 @@ HELP_TEXT = f"""
   {Colors.info("platform")}            Show platform/system information
   {Colors.info("clear")}               Clear the screen
   {Colors.info("help")}                Show this help message
-  {Colors.info("exit/quit")}           Exit Tej AI
+  {Colors.info("exit/quit")}           Exit TejStrike AI
 
-{Colors.dim("Pro tip: Just describe what you want to do and Tej will figure out the rest!")}
+{Colors.dim("Pro tip: Just describe what you want to do and TejStrike will figure out the rest!")}
+{Colors.dim("Configure LLM: set provider <anthropic|openai|groq|ollama>")}
 """
 
 

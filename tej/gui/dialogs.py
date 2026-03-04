@@ -1,5 +1,5 @@
 """
-Tej AI - GUI Dialogs
+TejStrike AI - GUI Dialogs
 Modal dialogs for tool info, sessions, settings, and about.
 """
 
@@ -11,9 +11,9 @@ from tej.gui.theme import Theme
 
 
 class BaseDialog(tk.Toplevel):
-    """Base class for Tej modal dialogs."""
+    """Base class for TejStrike modal dialogs."""
 
-    def __init__(self, parent, title="Tej AI", width=500, height=400):
+    def __init__(self, parent, title="TejStrike AI", width=500, height=400):
         super().__init__(parent)
         self.title(title)
         self.configure(bg=Theme.BG_DARK)
@@ -248,10 +248,10 @@ class SessionDialog(BaseDialog):
 
 
 class SettingsDialog(BaseDialog):
-    """Settings dialog."""
+    """Settings dialog with LLM and MCP configuration."""
 
     def __init__(self, parent, config, config_mgr):
-        super().__init__(parent, title="Settings", width=480, height=420)
+        super().__init__(parent, title="Settings", width=520, height=620)
         self.config = config
         self.config_mgr = config_mgr
         self._build_ui()
@@ -261,13 +261,132 @@ class SettingsDialog(BaseDialog):
         header.pack(fill=tk.X)
 
         tk.Label(
-            header, text="⚙️  Settings",
+            header, text="⚙️  TejStrike AI Settings",
             bg=Theme.BG_MEDIUM, fg=Theme.TEXT_PRIMARY,
             font=Theme.get_font("large", bold=True),
         ).pack(anchor="w")
 
-        content = tk.Frame(self, bg=Theme.BG_DARK, padx=20, pady=16)
-        content.pack(fill=tk.BOTH, expand=True)
+        # Scrollable content
+        canvas = tk.Canvas(self, bg=Theme.BG_DARK, highlightthickness=0)
+        scrollbar = tk.Scrollbar(self, orient="vertical", command=canvas.yview)
+        content = tk.Frame(canvas, bg=Theme.BG_DARK, padx=20, pady=16)
+        content.bind("<Configure>", lambda e: canvas.configure(scrollregion=canvas.bbox("all")))
+        canvas.create_window((0, 0), window=content, anchor="nw", width=480)
+        canvas.configure(yscrollcommand=scrollbar.set)
+        canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+
+        # ── AI Model Section ──
+        tk.Label(
+            content, text="🤖 AI MODEL",
+            bg=Theme.BG_DARK, fg=Theme.ACCENT,
+            font=Theme.get_font("small", bold=True), anchor="w",
+        ).pack(fill=tk.X, pady=(0, 8))
+
+        # Provider
+        tk.Label(
+            content, text="LLM Provider:",
+            bg=Theme.BG_DARK, fg=Theme.TEXT_SECONDARY,
+            font=Theme.get_font("small", bold=True), anchor="w",
+        ).pack(fill=tk.X, pady=(0, 4))
+
+        self.provider_var = tk.StringVar(
+            value=self.config.llm.provider if self.config.llm.provider else "none"
+        )
+        provider_frame = tk.Frame(content, bg=Theme.BG_DARK)
+        provider_frame.pack(fill=tk.X, pady=(0, 8))
+
+        for prov in ["none", "anthropic", "openai", "groq", "ollama"]:
+            tk.Radiobutton(
+                provider_frame, text=prov.title(),
+                variable=self.provider_var, value=prov,
+                bg=Theme.BG_DARK, fg=Theme.TEXT_PRIMARY,
+                selectcolor=Theme.BG_INPUT,
+                activebackground=Theme.BG_DARK,
+                activeforeground=Theme.TEXT_PRIMARY,
+                font=Theme.get_font("small"),
+            ).pack(side=tk.LEFT, padx=(0, 8))
+
+        # Model name
+        tk.Label(
+            content, text="Model Name:",
+            bg=Theme.BG_DARK, fg=Theme.TEXT_SECONDARY,
+            font=Theme.get_font("small", bold=True), anchor="w",
+        ).pack(fill=tk.X, pady=(0, 4))
+
+        self.model_var = tk.StringVar(value=self.config.llm.model or "")
+        model_entry = tk.Entry(
+            content, textvariable=self.model_var,
+            bg=Theme.BG_INPUT, fg=Theme.TEXT_PRIMARY,
+            font=Theme.get_font("normal"),
+            insertbackground=Theme.TEXT_PRIMARY,
+            highlightthickness=1,
+            highlightbackground=Theme.BORDER,
+            highlightcolor=Theme.ACCENT,
+            borderwidth=0, relief="flat",
+        )
+        model_entry.pack(fill=tk.X, pady=(0, 4), ipady=6)
+        tk.Label(
+            content, text="e.g. claude-sonnet-4-20250514, gpt-4o, llama3, mixtral-8x7b",
+            bg=Theme.BG_DARK, fg=Theme.TEXT_TERTIARY,
+            font=Theme.get_font("small"), anchor="w",
+        ).pack(fill=tk.X, pady=(0, 12))
+
+        # API Key
+        tk.Label(
+            content, text="API Key:",
+            bg=Theme.BG_DARK, fg=Theme.TEXT_SECONDARY,
+            font=Theme.get_font("small", bold=True), anchor="w",
+        ).pack(fill=tk.X, pady=(0, 4))
+
+        self.api_key_var = tk.StringVar(value=self.config.llm.api_key or "")
+        api_key_entry = tk.Entry(
+            content, textvariable=self.api_key_var,
+            bg=Theme.BG_INPUT, fg=Theme.TEXT_PRIMARY,
+            font=Theme.get_font("normal"),
+            insertbackground=Theme.TEXT_PRIMARY,
+            highlightthickness=1,
+            highlightbackground=Theme.BORDER,
+            highlightcolor=Theme.ACCENT,
+            borderwidth=0, relief="flat",
+            show="•",
+        )
+        api_key_entry.pack(fill=tk.X, pady=(0, 4), ipady=6)
+        tk.Label(
+            content, text="Not needed for Ollama (local). Set env var or enter here.",
+            bg=Theme.BG_DARK, fg=Theme.TEXT_TERTIARY,
+            font=Theme.get_font("small"), anchor="w",
+        ).pack(fill=tk.X, pady=(0, 12))
+
+        # API Base URL (for Ollama etc.)
+        tk.Label(
+            content, text="API Base URL (optional):",
+            bg=Theme.BG_DARK, fg=Theme.TEXT_SECONDARY,
+            font=Theme.get_font("small", bold=True), anchor="w",
+        ).pack(fill=tk.X, pady=(0, 4))
+
+        self.api_base_var = tk.StringVar(value=self.config.llm.api_base_url or "")
+        base_entry = tk.Entry(
+            content, textvariable=self.api_base_var,
+            bg=Theme.BG_INPUT, fg=Theme.TEXT_PRIMARY,
+            font=Theme.get_font("normal"),
+            insertbackground=Theme.TEXT_PRIMARY,
+            highlightthickness=1,
+            highlightbackground=Theme.BORDER,
+            highlightcolor=Theme.ACCENT,
+            borderwidth=0, relief="flat",
+        )
+        base_entry.pack(fill=tk.X, pady=(0, 16), ipady=6)
+
+        # ── Separator ──
+        tk.Frame(content, height=1, bg=Theme.BORDER).pack(fill=tk.X, pady=8)
+
+        # ── General Section ──
+        tk.Label(
+            content, text="⚙️ GENERAL",
+            bg=Theme.BG_DARK, fg=Theme.ACCENT,
+            font=Theme.get_font("small", bold=True), anchor="w",
+        ).pack(fill=tk.X, pady=(0, 8))
 
         # Default target
         tk.Label(
@@ -377,6 +496,20 @@ class SettingsDialog(BaseDialog):
         ).pack(side=tk.RIGHT)
 
     def _save(self):
+        # Save LLM settings
+        from tej.utils.config import LLMSettings
+        provider = self.provider_var.get()
+        self.config.llm = LLMSettings(
+            provider=provider if provider != "none" else "",
+            model=self.model_var.get().strip(),
+            api_key=self.api_key_var.get().strip(),
+            api_base_url=self.api_base_var.get().strip(),
+            temperature=0.3,
+            max_tokens=4096,
+            streaming=True,
+        )
+
+        # Save general settings
         self.config.default_target = self.target_var.get().strip() or None
         try:
             self.config.default_timeout = int(self.timeout_var.get())
@@ -394,7 +527,7 @@ class AboutDialog(BaseDialog):
     """About dialog."""
 
     def __init__(self, parent):
-        super().__init__(parent, title="About Tej AI", width=420, height=380)
+        super().__init__(parent, title="About TejStrike AI", width=420, height=420)
         self._build_ui()
 
     def _build_ui(self):
@@ -403,7 +536,7 @@ class AboutDialog(BaseDialog):
 
         # Logo
         tk.Label(
-            content, text="TEJ AI",
+            content, text="TEJSTRIKE AI",
             bg=Theme.BG_DARK, fg=Theme.ACCENT,
             font=Theme.get_font("hero", bold=True),
         ).pack(pady=(0, 4))
@@ -418,7 +551,7 @@ class AboutDialog(BaseDialog):
         ver_frame = tk.Frame(content, bg=Theme.ACCENT_DIM, padx=16, pady=4)
         ver_frame.pack()
         tk.Label(
-            ver_frame, text="Version 1.0.0",
+            ver_frame, text="Version 2.0.0",
             bg=Theme.ACCENT_DIM, fg="#ffffff",
             font=Theme.get_font("normal", bold=True),
         ).pack()
@@ -426,6 +559,8 @@ class AboutDialog(BaseDialog):
         tk.Label(
             content, text="\nKali Linux & Windows Compatible\n"
                           "91+ Security Tools Integrated\n"
+                          "Multi-Model LLM (Claude, GPT, Groq, Ollama)\n"
+                          "MCP Server Integration\n"
                           "Natural Language Interface\n",
             bg=Theme.BG_DARK, fg=Theme.TEXT_PRIMARY,
             font=Theme.get_font("normal"),

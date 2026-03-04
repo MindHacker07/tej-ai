@@ -1,8 +1,8 @@
 @echo off
-REM Tej AI - Windows Quick Launcher
-REM Double-click this to start Tej AI
+REM TejStrike AI - Windows Quick Launcher
+REM Double-click this to start TejStrike AI
 
-echo Starting Tej AI...
+echo Starting TejStrike AI...
 cd /d "%~dp0"
 python tej_ai.py %*
 if errorlevel 1 (

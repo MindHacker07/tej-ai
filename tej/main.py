@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """
-Tej AI - Main Entry Point
+TejStrike AI - Main Entry Point
 AI-Powered Security Tool Orchestrator for Kali Linux & Windows
+Multi-model LLM support with MCP server integration.
 """
 
 import sys
@@ -14,18 +15,19 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 def main():
     parser = argparse.ArgumentParser(
-        prog="tej",
-        description="Tej AI - AI-Powered Security Tool Orchestrator",
+        prog="tejstrike",
+        description="TejStrike AI - AI-Powered Security Tool Orchestrator",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
-  tej                          Start interactive shell
-  tej --scan 192.168.1.1       Quick port scan
-  tej --tool nmap              Get tool information
-  tej --search "sql injection" Search for tools
-  tej --list-tools             List all tools
-  tej --check nmap             Check if tool is installed
-  tej --platform               Show platform info
+  tejstrike                          Start interactive shell
+  tejstrike --scan 192.168.1.1       Quick port scan
+  tejstrike --tool nmap              Get tool information
+  tejstrike --search "sql injection" Search for tools
+  tejstrike --list-tools             List all tools
+  tejstrike --check nmap             Check if tool is installed
+  tejstrike --platform               Show platform info
+  tejstrike --model anthropic        Set LLM provider
         """
     )
 
@@ -67,7 +69,7 @@ Examples:
     )
     parser.add_argument(
         "--version", action="version",
-        version="Tej AI v1.0.0"
+        version="TejStrike AI v2.0.0"
     )
     parser.add_argument(
         "--gui", action="store_true",
@@ -115,7 +117,7 @@ Examples:
                 shell.config.verbose = True
             shell.start()
         except ImportError as e:
-            print(f"Error loading Tej AI: {e}")
+            print(f"Error loading TejStrike AI: {e}")
             print("Make sure all dependencies are installed: pip install -r requirements.txt")
             sys.exit(1)
 
@@ -133,7 +135,7 @@ def _handle_cli_command(args):
         tools = get_all_tools()
         rows = [[t.name, t.category, truncate(t.description, 55)] 
                 for t in sorted(tools.values(), key=lambda x: x.category)]
-        print(f"\n{Colors.header(f'Tej AI - All Tools ({get_tool_count()})')}\n")
+        print(f"\n{Colors.header(f'TejStrike AI - All Tools ({get_tool_count()})')}\n")
         print(format_table(["Tool", "Category", "Description"], rows))
 
     elif args.list_categories:

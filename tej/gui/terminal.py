@@ -1,5 +1,5 @@
 """
-Tej AI - Terminal/Output Panel
+TejStrike AI - Terminal/Output Panel
 Embedded terminal-like widget for displaying tool execution output in real-time.
 """
 

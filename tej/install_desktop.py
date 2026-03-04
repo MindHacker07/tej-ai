@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Tej AI - Install Desktop Application (Kali Linux)
-Sets up Tej AI as a native desktop application:
+TejStrike AI - Install Desktop Application (Kali Linux)
+Sets up TejStrike AI as a native desktop application:
 - Creates .desktop launcher in /usr/share/applications
 - Installs icon
 - Registers the application with the desktop environment
@@ -15,11 +15,11 @@ import platform
 
 
 def install_desktop():
-    """Install Tej AI as a desktop application on Linux."""
+    """Install TejStrike AI as a desktop application on Linux."""
     
     if platform.system() != "Linux":
         print("[!] Desktop installation is for Linux only.")
-        print("    On Windows, Tej AI runs via: tej --gui")
+        print("    On Windows, TejStrike AI runs via: tejstrike --gui")
         return False
 
     script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -41,22 +41,22 @@ def install_desktop():
     os.makedirs(icon_dir, exist_ok=True)
     os.makedirs(bin_dir, exist_ok=True)
 
-    # 2. Find the tej-gui entry point
-    tej_gui = shutil.which("tej-gui")
+    # 2. Find the tejstrike-gui entry point
+    tej_gui = shutil.which("tejstrike-gui") or shutil.which("tej-gui")
     if not tej_gui:
         # Create a launcher script
-        tej_gui = os.path.join(bin_dir, "tej-gui")
+        tej_gui = os.path.join(bin_dir, "tejstrike-gui")
         python_path = sys.executable
         with open(tej_gui, "w") as f:
             f.write(f"""#!/bin/bash
-# Tej AI - GUI Launcher
+# TejStrike AI - GUI Launcher
 exec {python_path} -c "from tej.gui import launch_gui; launch_gui()" "$@"
 """)
         os.chmod(tej_gui, 0o755)
         print(f"[+] Created launcher: {tej_gui}")
 
     # 3. Generate icon
-    icon_path = os.path.join(icon_dir, "tej-ai.png")
+    icon_path = os.path.join(icon_dir, "tejstrike-ai.png")
     xpm_source = os.path.join(script_dir, "gui", "assets", "tej_icon.xpm")
     
     # Generate XPM icon
@@ -79,20 +79,20 @@ exec {python_path} -c "from tej.gui import launch_gui; launch_gui()" "$@"
 
     # 4. Create .desktop file
     desktop_content = f"""[Desktop Entry]
-Version=1.0
+Version=2.0
 Type=Application
-Name=Tej AI
+Name=TejStrike AI
 GenericName=Security Tool Orchestrator
-Comment=AI-Powered Security Tool Orchestrator for Kali Linux
+Comment=AI-Powered Security Tool Orchestrator with Multi-Model LLM Support
 Exec={tej_gui}
-Icon=tej-ai
+Icon=tejstrike-ai
 Terminal=false
 Categories=System;Security;Utility;
-Keywords=security;pentesting;hacking;kali;ai;nmap;tools;
-StartupWMClass=tej-ai
+Keywords=security;pentesting;hacking;kali;ai;nmap;tools;llm;claude;gpt;
+StartupWMClass=tejstrike-ai
 StartupNotify=true
 """
-    desktop_path = os.path.join(desktop_dir, "tej-ai.desktop")
+    desktop_path = os.path.join(desktop_dir, "tejstrike-ai.desktop")
     with open(desktop_path, "w") as f:
         f.write(desktop_content)
     os.chmod(desktop_path, 0o644)
@@ -121,13 +121,13 @@ StartupNotify=true
 
     print()
     print("=" * 50)
-    print("  Tej AI Desktop Application Installed!")
+    print("  TejStrike AI Desktop Application Installed!")
     print("=" * 50)
     print()
     print("  You can now:")
-    print(f"  • Find 'Tej AI' in your application menu")
-    print(f"  • Run from terminal: tej-gui")
-    print(f"  • Run from terminal: tej --gui")
+    print(f"  • Find 'TejStrike AI' in your application menu")
+    print(f"  • Run from terminal: tejstrike-gui")
+    print(f"  • Run from terminal: tejstrike --gui")
     print()
     
     if not is_root:
@@ -138,7 +138,7 @@ StartupNotify=true
 
 
 def uninstall_desktop():
-    """Remove Tej AI desktop integration."""
+    """Remove TejStrike AI desktop integration."""
     locations = [
         "/usr/share/applications/tej-ai.desktop",
         os.path.expanduser("~/.local/share/applications/tej-ai.desktop"),

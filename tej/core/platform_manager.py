@@ -1,5 +1,5 @@
 """
-Tej AI - Platform Detection & Cross-Platform Support
+TejStrike AI - Platform Detection & Cross-Platform Support
 Handles differences between Kali Linux and Windows environments.
 """
 

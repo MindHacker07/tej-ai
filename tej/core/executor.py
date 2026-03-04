@@ -1,5 +1,5 @@
 """
-Tej AI - Tool Executor
+TejStrike AI - Tool Executor
 Handles executing security tools, capturing output, and managing processes.
 """
 
@@ -46,9 +46,9 @@ class ToolExecutor:
     def _setup_output_dir(self) -> str:
         """Create output directory for tool results."""
         if self.platform.platform == Platform.WINDOWS:
-            base = os.path.expanduser("~\\tej_output")
+            base = os.path.expanduser("~\\tejstrike_output")
         else:
-            base = os.path.expanduser("~/tej_output")
+            base = os.path.expanduser("~/tejstrike_output")
         
         os.makedirs(base, exist_ok=True)
         return base
@@ -117,7 +117,7 @@ class ToolExecutor:
                 except subprocess.TimeoutExpired:
                     process.kill()
                     stdout_text, stderr_text = process.communicate()
-                    stderr_text += "\n[Tej] Command timed out after {}s".format(
+                    stderr_text += "\n[TejStrike] Command timed out after {}s".format(
                         config.timeout
                     )
 
@@ -149,7 +149,7 @@ class ToolExecutor:
                 command=command,
                 exit_code=-1,
                 stdout="",
-                stderr=f"[Tej] Tool '{tool_name}' not found. "
+                stderr=f"[TejStrike] Tool '{tool_name}' not found. "
                        f"Install it with: {self.platform._get_install_command(tool_name)}",
                 duration=time.time() - start_time
             )
@@ -161,7 +161,7 @@ class ToolExecutor:
                 command=command,
                 exit_code=-1,
                 stdout="",
-                stderr=f"[Tej] Permission denied. Try running with sudo/admin privileges.",
+                stderr=f"[TejStrike] Permission denied. Try running with sudo/admin privileges.",
                 duration=time.time() - start_time
             )
             exec_entry["error"] = "Permission denied"
@@ -172,7 +172,7 @@ class ToolExecutor:
                 command=command,
                 exit_code=-1,
                 stdout="",
-                stderr=f"[Tej] Execution error: {str(e)}",
+                stderr=f"[TejStrike] Execution error: {str(e)}",
                 duration=time.time() - start_time
             )
             exec_entry["error"] = str(e)
@@ -219,7 +219,7 @@ class ToolExecutor:
             process.wait(timeout=timeout)
         except subprocess.TimeoutExpired:
             process.kill()
-            stderr_lines.append(f"\n[Tej] Command timed out after {timeout}s\n")
+            stderr_lines.append(f"\n[TejStrike] Command timed out after {timeout}s\n")
 
         stdout_thread.join(timeout=2)
         stderr_thread.join(timeout=2)
@@ -235,7 +235,7 @@ class ToolExecutor:
         try:
             with open(filepath, 'w', encoding='utf-8') as f:
                 f.write(f"{'='*60}\n")
-                f.write(f"Tej AI - Tool Output Report\n")
+                f.write(f"TejStrike AI - Tool Output Report\n")
                 f.write(f"{'='*60}\n")
                 f.write(f"Tool: {result.tool_name}\n")
                 f.write(f"Command: {result.command}\n")
