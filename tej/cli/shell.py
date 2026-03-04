@@ -7,7 +7,13 @@ Supports multi-model LLM for natural language interpretation.
 import os
 import sys
 import time
-import readline
+try:
+    import readline
+except ImportError:
+    try:
+        import pyreadline3 as readline  # Windows alternative
+    except ImportError:
+        readline = None
 import traceback
 from typing import Optional, List
 
@@ -80,6 +86,8 @@ class TejShell:
 
     def _setup_readline(self):
         """Configure readline for command history and tab completion."""
+        if readline is None:
+            return
         try:
             history_file = os.path.join(
                 self.config.output_dir, ".tejstrike_history"
@@ -747,8 +755,9 @@ class TejShell:
 
         # Save readline history
         try:
-            history_file = os.path.join(self.config.output_dir, ".tejstrike_history")
-            readline.write_history_file(history_file)
+            if readline is not None:
+                history_file = os.path.join(self.config.output_dir, ".tejstrike_history")
+                readline.write_history_file(history_file)
         except Exception:
             pass
 
